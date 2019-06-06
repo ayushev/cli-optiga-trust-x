@@ -38,7 +38,7 @@ int main (int argc, char **argv)
 	uint16_t offset, bytes_to_read;
     uint16_t optiga_oid;
     uint8_t read_data_buffer[1024];
-    
+
 	return_status = trustX_Open();
 	if (return_status != OPTIGA_LIB_SUCCESS)
 		exit(1);

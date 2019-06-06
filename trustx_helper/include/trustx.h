@@ -38,27 +38,28 @@
 #include "optiga_util.h"
 #include "optiga_comms.h"
 #include "optiga_crypt.h"
+#include "pal_os_event.h"
 
 //Debug Print
-//#define DEBUG =1
+//#define TRUSTX_HELPER_DEBUG =1
 
-#ifdef DEBUG
+#ifdef TRUSTX_HELPER_DEBUG
 
-#define DBG(x, ...)      fprintf(stderr, "%s:%d " x "\n", __FILE__, __LINE__, ##__VA_ARGS__)
-#define DBGFN(x, ...)    fprintf(stderr, "%s:%d %s: " x "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define ERRFN(x, ...)    fprintf(stderr, "Error in %s:%d %s: " x "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define TRUSTX_HELPER_DBG(x, ...)      fprintf(stderr, "%s:%d " x "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#define TRUSTX_HELPER_DBGFN(x, ...)    fprintf(stderr, "%s:%d %s: " x "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define TRUSTX_HELPER_ERRFN(x, ...)    fprintf(stderr, "Error in %s:%d %s: " x "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 
 #else
 
-#define DBG(x, ...)
-#define DBGFN(x, ...)
-#define ERRFN(x, ...)    fprintf(stderr, "Error in %s:%d %s: " x "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define TRUSTX_HELPER_DBG(x, ...)
+#define TRUSTX_HELPER_DBGFN(x, ...)
+#define TRUSTX_HELPER_ERRFN(x, ...)    fprintf(stderr, "Error in %s:%d %s: " x "\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 
 #endif
 
-//Globe
-char *i2c_if;
-char dev[]="/dev/i2c-1";
+//extern
+extern char *i2c_if;
+extern char dev[];
 
 // ********** typedef
 typedef struct _tag_trustX_UID {

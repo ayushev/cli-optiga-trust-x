@@ -63,13 +63,16 @@ typedef void (*register_callback)(void*);
  * @brief Platform specific event init function.
  */
 pal_status_t pal_os_event_init(void);
+pal_status_t pal_os_event_stop(void);
+
+
 #endif
 
 /**
  * @brief Callback registration function to trigger once when timer expires.
  */
 void pal_os_event_register_callback_oneshot(register_callback callback, void* callback_args, uint32_t time_us);
-
+pal_status_t pal_os_event_disarm(void);
 
 
 #endif //_PAL_OS_EVENT_H_

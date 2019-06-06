@@ -28,7 +28,7 @@
 * \ingroup  grOptigaCrypt
 * @{
 */
-
+#include <stdio.h>
 #include "optiga/optiga_crypt.h"
 #include "optiga/pal/pal_os_lock.h"
 
@@ -47,7 +47,7 @@ optiga_lib_status_t optiga_crypt_random(optiga_rng_types_t rng_type,
     rand_response.prgbBuffer    = random_data;
     rand_response.wBufferLength = random_data_length;
     rand_response.wRespLength   = 0;
-
+    
     while (pal_os_lock_acquire() != OPTIGA_LIB_SUCCESS);
     return_value = CmdLib_GetRandom(&rand_options,&rand_response);
     pal_os_lock_release();
@@ -312,6 +312,7 @@ optiga_lib_status_t optiga_crypt_ecdsa_sign (uint8_t * digest,
     sign.wLen       =  *signature_length;
 
     while (pal_os_lock_acquire() != OPTIGA_LIB_SUCCESS);
+
     return_value = CmdLib_CalculateSign(&sign_options,&sign);
     pal_os_lock_release();
 

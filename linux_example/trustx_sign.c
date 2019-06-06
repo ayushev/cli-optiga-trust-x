@@ -70,7 +70,7 @@ void _helpmenu(void)
 {
 	printf("\nHelp menu: trustx_sign <option> ...<option>\n");
 	printf("option:- \n");
-	printf("-k <OID Key>  : Read Certificate from OID 0xNNNN \n");
+	printf("-k <OID Key>  : Select key for signing OID 0xNNNN \n");
 	printf("-o <filename> : Output to file \n");
 	printf("-i <filename> : Input Data file\n");
 	printf("-H            : Hash before sign\n");
@@ -173,6 +173,7 @@ int main (int argc, char **argv)
     char *inFile = NULL;
     
 	int option = 0;                    // Command line option.
+
 
 /***************************************************************
  * Getting Input from CLI

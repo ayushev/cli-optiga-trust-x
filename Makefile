@@ -23,22 +23,23 @@
 #
 #*/
 
-OPTIGA_PREFIX = trustx_lib
+TRUSTX = trustx_lib
 
-LIBDIR =  $(OPTIGA_PREFIX)/pal/linux
-LIBDIR += $(OPTIGA_PREFIX)/optiga/util
-#LIBDIR += optiga/dtls
-LIBDIR += $(OPTIGA_PREFIX)/optiga/crypt
-LIBDIR += $(OPTIGA_PREFIX)/optiga/comms
-LIBDIR += $(OPTIGA_PREFIX)/optiga/common
-LIBDIR += $(OPTIGA_PREFIX)/optiga/cmd
+
+LIBDIR =  $(TRUSTX)/pal/linux
+LIBDIR += $(TRUSTX)/optiga/util
+#LIBDIR += $(TRUSTX)/optiga/dtls
+LIBDIR += $(TRUSTX)/optiga/crypt
+LIBDIR += $(TRUSTX)/optiga/comms
+LIBDIR += $(TRUSTX)/optiga/common
+LIBDIR += $(TRUSTX)/optiga/cmd
 LIBDIR += trustx_helper
 
-#OTHDIR = examples/optiga
-#OTHDIR += examples/ecdsa_utils
-#OTHDIR += examples/authenticate_chip
-#OTHDIR += examples/mbedtls_port
-#OTHDIR += externals/mbedtls-2.12.0
+#OTHDIR = $(TRUSTX)/examples/optiga
+#OTHDIR += $(TRUSTX)/examples/ecdsa_utils
+#OTHDIR += $(TRUSTX)/examples/authenticate_chip
+#OTHDIR += $(TRUSTX)/examples/mbedtls_port
+#OTHDIR += $(TRUSTX)/externals/mbedtls-2.12.0
  
 BINDIR = bin
 APPDIR = linux_example
@@ -46,17 +47,19 @@ ENGDIR = trustx_engine
 LIB_INSTALL_DIR = /usr/lib/arm-linux-gnueabihf
 ENGINE_INSTALL_DIR = $(LIB_INSTALL_DIR)/engines-1.1
 
-INCDIR = $(OPTIGA_PREFIX)/optiga/include
-INCDIR += $(OPTIGA_PREFIX)/optiga/include/optiga
-INCDIR += $(OPTIGA_PREFIX)/optiga/include/optiga/ifx_i2c
-INCDIR += $(OPTIGA_PREFIX)/optiga/include/optiga/dtls
-INCDIR += $(OPTIGA_PREFIX)/optiga/include/optiga/comms
-INCDIR += $(OPTIGA_PREFIX)/optiga/include/optiga/common
-INCDIR += $(OPTIGA_PREFIX)/optiga/include/optiga/cmd
-INCDIR += $(OPTIGA_PREFIX)/externals/mbedtls-2.12.0/include
+INCDIR = $(TRUSTX)/optiga/include
+INCDIR += $(TRUSTX)/optiga/include/optiga
+INCDIR += $(TRUSTX)/optiga/include/optiga/ifx_i2c
+INCDIR += $(TRUSTX)/optiga/include/optiga/dtls
+INCDIR += $(TRUSTX)/optiga/include/optiga/comms
+INCDIR += $(TRUSTX)/optiga/include/optiga/common
+INCDIR += $(TRUSTX)/optiga/include/optiga/cmd
+INCDIR += $(TRUSTX)/optiga/include/optiga/pal
+INCDIR += $(TRUSTX)/pal/linux
+INCDIR += $(TRUSTX)/externals/mbedtls-2.12.0/include
 INCDIR += trustx_helper/include
 INCDIR += trustx_engine
-INCDIR += $(OPTIGA_PREFIX)/examples/ecdsa_utils
+INCDIR += $(TRUSTX)/examples/ecdsa_utils
 
 ifdef INCDIR
 INCSRC := $(shell find $(INCDIR) -name '*.h')
@@ -102,23 +105,25 @@ LDFLAGS += -lssl
 LDFLAGS += -lcrypto
 
 LDFLAGS_1 = -ltrustx
-LDFLAGS_1 += -lrt
 
-all : $(APPS)
+all : $(BINDIR)/$(LIB) $(APPS) $(BINDIR)/$(ENG)
 
 $(BINDIR)/$(ENG): %: $(ENGOBJ) $(INCSRC) $(BINDIR)/$(LIB)
 	@echo "******* Linking $@ "
+	@mkdir -p bin
 	@$(CC) $(LDFLAGS) $(LDFLAGS_1) $(ENGOBJ) -shared -o $@
 
 $(APPS): %: $(OTHOBJ) $(INCSRC) %.o
 	@echo "******* Linking $@ "
+	@mkdir -p bin
 	@$(CC) $(LDFLAGS) $(LDFLAGS_1) $@.o $(OTHOBJ) -o $@
 	@cp $@ bin/.
 
 $(BINDIR)/$(LIB): %: $(LIBOBJ) $(INCSRC)
 	@echo "******* Linking $@ "
+	@mkdir -p bin
 	@$(CC) $(LDFLAGS) $(LIBOBJ) -shared -o $@
-	
+
 $(LIBOBJ): %.o: %.c $(INCSRC)
 	@echo "+++++++ Generating lib object: $< "
 	@$(CC) $(CFLAGS) $< -o $@
@@ -142,16 +147,22 @@ clean :
 	@echo "Removing all application from $(BINDIR)"	
 	@rm -rf bin/*
 
+install_debug_lib: uninstall_lib $(BINDIR)/$(LIB)
+	@echo "Create debug link library $(LIB_INSTALL_DIR)/$(LIB)"	
+	@ln -s $(realpath $(BINDIR)/$(LIB)) $(LIB_INSTALL_DIR)/$(LIB)
+
+install_lib: uninstall_lib $(BINDIR)/$(LIB)
+	@echo "$(LIB_INSTALL_DIR)/$(LIB)"	
+	@cp $(BINDIR)/$(LIB) $(LIB_INSTALL_DIR)/$(LIB)
+
+install_debug_engine: uninstall_engine $(BINDIR)/$(ENG)
+	@echo "Create debug link library $(ENGINE_INSTALL_DIR)/$(ENG)"	
+	@ln -s $(realpath $(BINDIR)/$(ENG)) $(ENGINE_INSTALL_DIR)/$(ENG)
+
 install_engine: uninstall_engine $(BINDIR)/$(ENG) 
 	@echo "Installing library : $(ENGINE_INSTALL_DIR)/$(ENG)"	
 	@mkdir -p $(ENGINE_INSTALL_DIR)
-#ln -s $(realpath $(BINDIR)/$(ENG)) $(ENGINE_INSTALL_DIR)/$(ENG)
 	@cp $(BINDIR)/$(ENG) $(ENGINE_INSTALL_DIR)/$(ENG)
-	
-install_lib: uninstall_lib $(BINDIR)/$(LIB)
-	@echo "$(LIB_INSTALL_DIR)/$(LIB)"	
-#ln -s $(realpath $(BINDIR)/$(LIB)) $(LIB_INSTALL_DIR)/$(LIB)
-	@cp $(BINDIR)/$(LIB) $(LIB_INSTALL_DIR)/$(LIB)
 
 uninstall_engine:
 	@echo "Removing library : $(ENGINE_INSTALL_DIR)/$(ENG)"	

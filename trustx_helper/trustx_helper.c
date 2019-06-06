@@ -38,10 +38,15 @@
 
 #include "trustx.h"
 
+//Globe
+char *i2c_if;
+char dev[]="/dev/i2c-1";
+
 extern void pal_gpio_init(void);
 extern void pal_gpio_deinit(void);
 extern pal_status_t pal_init(void);
 extern pal_status_t pal_os_event_init(void);
+extern pal_status_t pal_os_event_stop(void);
 
 /*************************************************************************
 *  Global
@@ -348,7 +353,7 @@ uint16_t trustXWritePEM(uint8_t *buf, uint32_t len, const char *filename, char *
 	fp = fopen(filename,"wb");
 	if (!fp)
 	{
-		ERRFN("error creating file!!\n");
+		TRUSTX_HELPER_ERRFN("error creating file!!\n");
 		return 1;
 	}
 
@@ -367,7 +372,7 @@ uint16_t trustXWriteDER(uint8_t *buf, uint32_t len, const char *filename)
 	fp = fopen(filename,"wb");
 	if (!fp)
 	{
-		ERRFN("error creating file!!\n");
+		TRUSTX_HELPER_ERRFN("error creating file!!\n");
 		return 1;
 	}
 
@@ -511,7 +516,7 @@ optiga_lib_status_t trustX_readCert(uint16_t oid, uint8_t* p_cert, uint32_t* len
         if (OPTIGA_LIB_SUCCESS != return_status)
         {
 			//Reading the data object failed.
-			ERRFN("optiga_util_read_data : FAIL!!!\n");
+			TRUSTX_HELPER_ERRFN("optiga_util_read_data : FAIL!!!\n");
             break;
         }
         
@@ -554,7 +559,7 @@ optiga_lib_status_t trustX_readUID(utrustX_UID_t *UID)
         if (OPTIGA_LIB_SUCCESS != return_status)
         {
 			//Reading the data object failed.
-			ERRFN("optiga_util_read_data : FAIL!!!\n");
+			TRUSTX_HELPER_ERRFN("optiga_util_read_data : FAIL!!!\n");
             break;
         }
 
@@ -575,7 +580,7 @@ optiga_lib_status_t trustX_Open(void)
 {
 	int32_t status = (int32_t) OPTIGA_LIB_ERROR;
 		
-	DBGFN(">> Enter trustX_Open()\n");
+	TRUSTX_HELPER_DBGFN(">> Enter trustX_Open()\n");
 	do
 	{
 		i2c_if = dev;
@@ -583,21 +588,24 @@ optiga_lib_status_t trustX_Open(void)
 		pal_os_event_init();
 
 		if (pal_init() != PAL_STATUS_SUCCESS)
+		{
+			TRUSTX_HELPER_ERRFN( "Failure: pal_init()!!!\n\r");
 			break;
+		}
 			
 		status = optiga_util_open_application(&optiga_comms);
 		
 		if(OPTIGA_LIB_SUCCESS != status)
 		{
-			ERRFN( "Failure: optiga_util_open_application(): 0x%04X\n\r", status);
+			TRUSTX_HELPER_ERRFN( "Failure: optiga_util_open_application(): 0x%04X\n\r", status);
 			break;
 		}
 		
-		DBGFN("optiga_util_open_application(): passed.\n");
+		TRUSTX_HELPER_DBGFN("optiga_util_open_application(): passed.\n");
 		status = OPTIGA_LIB_SUCCESS;
 	} while(0);
 
-	DBGFN("<< Exit trustX_Open()\n");
+	TRUSTX_HELPER_DBGFN("<< Exit trustX_Open()\n");
 
 	return status;	
 }
@@ -608,19 +616,24 @@ optiga_lib_status_t trustX_Open(void)
 void trustX_Close(void)
 {
 	int32_t status = (int32_t) OPTIGA_LIB_ERROR;
-
+	
+	TRUSTX_HELPER_DBGFN(">");	
 	do
 	{
-		//pal_gpio_deinit();
+
 		status = optiga_comms_close(&optiga_comms);
 		if(OPTIGA_LIB_SUCCESS != status)
 		{
-			ERRFN( "Failure: optiga_comms_close(): 0x%04X\n\r", status);
+			TRUSTX_HELPER_ERRFN( "Failure: optiga_comms_close(): 0x%04X\n\r", status);
 			break;
 		}
 		status = OPTIGA_LIB_SUCCESS;
+		pal_os_event_stop();
+		pal_gpio_deinit();
+
 	} while(0);
 
-	DBGFN("TrustX Closed.\n");
+	TRUSTX_HELPER_DBGFN("TrustX Closed.\n");
+	TRUSTX_HELPER_DBGFN("<");	
 	//return status;
 }
