@@ -1,3 +1,7 @@
+# RELOCATED TO THE INFINEON [REPO](https://github.com/Infineon/cli-optiga-trust-x)
+
+
+
 # Command Line Interface (CLI) & OpenSSL Engine for OPTIGA™ Trust X security solution
 
 ------
